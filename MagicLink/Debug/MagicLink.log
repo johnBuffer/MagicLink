@@ -1,0 +1,4 @@
+﻿  FileExplorer.cpp
+c:\users\jean tampon\documents\code\cpp\magiclink\magiclink\include\fileexplorer.cpp(19): warning C4101: 'length_of_arg': unreferenced local variable
+  MagicLink.vcxproj -> C:\Users\Jean Tampon\Documents\code\cpp\MagicLink\Debug\MagicLink.exe
+  MagicLink.vcxproj -> C:\Users\Jean Tampon\Documents\code\cpp\MagicLink\Debug\MagicLink.pdb (Full PDB)
