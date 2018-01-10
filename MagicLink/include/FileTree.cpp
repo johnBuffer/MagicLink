@@ -1,4 +1,5 @@
 #include "FileTree.h"
+#include "utils.h"
 #include <iostream>
 
 FileTree::FileTree(const std::wstring& name, NodeType type) :
@@ -11,9 +12,24 @@ FileTree::FileTree(const std::wstring& name, NodeType type) :
 FileTree* FileTree::addSubNode(const std::wstring & name, NodeType type)
 {
 	FileTree* newFileTree = new FileTree(name, type);
-	m_subNodes[name] = (newFileTree);
+	m_subNodes[name] = newFileTree;
+
+	if (m_path.length() > 0)
+		newFileTree->m_path = m_path + L"\\" + m_name;
+	else
+		newFileTree->m_path = m_name;
 
 	return newFileTree;
+}
+
+void FileTree::setName(const std::wstring& name)
+{
+	m_name = name;
+}
+
+void FileTree::setPath(const std::wstring& path)
+{
+	m_path = path;
 }
 
 void FileTree::setWriteTime(FILETIME time)
@@ -23,7 +39,7 @@ void FileTree::setWriteTime(FILETIME time)
 
 void FileTree::print(const std::wstring& indent) const
 {
-	std::wcout << indent << m_name << std::endl;
+	std::wcout << indent << m_name << L"(" << m_path << L")" << std::endl;
 	for (const auto elem : m_subNodes)
 	{
 		elem.second->print(indent + std::wstring(L"   "));
@@ -32,10 +48,18 @@ void FileTree::print(const std::wstring& indent) const
 
 void FileTree::showDiff(const FileTree& tree) const
 {
-	compare(this, &tree);
+	compare(this, &tree, nullptr);
 }
 
-void FileTree::compare(const FileTree* tree1, const FileTree* tree2) const
+FileTreeDiff FileTree::getDiff(const FileTree & tree) const
+{
+	FileTreeDiff result;
+	compare(this, &tree, &result);
+
+	return result;
+}
+
+void FileTree::compare(const FileTree* tree1, const FileTree* tree2, FileTreeDiff* result) const
 {
 	for (const auto elem : tree1->m_subNodes)
 	{
@@ -45,15 +69,27 @@ void FileTree::compare(const FileTree* tree1, const FileTree* tree2) const
 		if (tree2->hasSubNode(name))
 		{
 			const FileTree* subNode2 = tree2->m_subNodes.at(name);
-			if (subNode->m_lastWriteTime.dwHighDateTime != subNode2->m_lastWriteTime.dwHighDateTime || subNode->m_lastWriteTime.dwLowDateTime != subNode2->m_lastWriteTime.dwLowDateTime)
+			if (subNode->m_lastWriteTime == subNode2->m_lastWriteTime)
 			{
 				std::wcout << L"[*] Modified '" << name << L"'" << std::endl;
 			}
 
-			compare(subNode, subNode2);
+			compare(subNode, subNode2, result);
 		}
 		else
 		{
+			if (result)
+			{
+				if (subNode->m_type == NodeTypeFILE)
+				{
+					result->filesToCreate.push_back(name);
+				}
+				else
+				{
+					result->dirsToCreate.push_back(name);
+				}
+			}
+
 			std::wcout << L"[-] Deleted node '" << name << L"'" << std::endl;
 		}
 	}

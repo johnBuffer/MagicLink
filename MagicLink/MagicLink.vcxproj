@@ -143,13 +143,21 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="include\ChangeWatcher.cpp" />
     <ClCompile Include="include\FileExplorer.cpp" />
     <ClCompile Include="include\FileTree.cpp" />
+    <ClCompile Include="src\ChangeNotifier.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\MagicSynchronizer.cpp" />
+    <ClCompile Include="src\utils.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\ChangeNotifier.h" />
+    <ClInclude Include="include\ChangeWatcher.h" />
     <ClInclude Include="include\FileExplorer.h" />
     <ClInclude Include="include\FileTree.h" />
+    <ClInclude Include="include\MagicSynchronizer.h" />
+    <ClInclude Include="include\utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

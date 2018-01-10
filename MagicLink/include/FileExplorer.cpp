@@ -2,10 +2,16 @@
 
 #include <strsafe.h>
 
-FileExplorer::FileExplorer(TCHAR* path) :
+FileExplorer::FileExplorer(const std::wstring& path) :
 	m_path(path),
-	m_fileTree(L"root", NodeType::NodeTypeDIR)
+	m_fileTree(L"", NodeType::NodeTypeDIR)
 {
+	size_t length = path.length();
+	size_t lastPose = path.find_last_of('\\');
+
+	m_fileTree.setName(path.substr(lastPose+1));
+	m_fileTree.setPath(path.substr(0, lastPose));
+
 	m_fillFileTree();
 }
 
@@ -21,7 +27,6 @@ void FileExplorer::m_fillFileTree()
 
 void FileExplorer::m_exploreDir(const std::wstring& dirPath, FileTree* tree)
 {
-	LARGE_INTEGER filesize;
 	WIN32_FIND_DATA ffd;
 	HANDLE hFind = INVALID_HANDLE_VALUE;
 	std::wstring searchDirPath = dirPath + L"\\*";

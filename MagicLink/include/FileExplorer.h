@@ -7,7 +7,7 @@
 class FileExplorer
 {
 public:
-	FileExplorer(TCHAR* path);
+	FileExplorer(const std::wstring& path);
 
 	const FileTree& getFileTree() const;
 
