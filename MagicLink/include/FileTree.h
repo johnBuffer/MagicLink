@@ -30,6 +30,7 @@ public:
 
 	void print(const std::wstring& indent) const;
 	void showDiff(const FileTree& tree) const;
+	std::wstring getFullPath() const;
 
 	FileTreeDiff getDiff(const FileTree& tree) const;
 

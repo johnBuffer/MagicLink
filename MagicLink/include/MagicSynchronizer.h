@@ -16,5 +16,5 @@ private:
 
 	ChangeWatcher m_watcher;
 
-	void synchronize();
+	void synchronize(ChangeNotifier* cn);
 };

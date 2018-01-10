@@ -1,4 +1,5 @@
-﻿  FileExplorer.cpp
-cl : Command line warning D9028: minimal rebuild failure, reverting to normal build
+﻿  main.cpp
+  MagicSynchronizer.cpp
+  Generating Code...
   MagicLink.vcxproj -> C:\Users\Jean Tampon\Documents\code\cpp\MagicLink\Debug\MagicLink.exe
   MagicLink.vcxproj -> C:\Users\Jean Tampon\Documents\code\cpp\MagicLink\Debug\MagicLink.pdb (Full PDB)

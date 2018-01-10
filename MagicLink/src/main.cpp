@@ -5,7 +5,7 @@
 #include <iostream>
 #pragma comment(lib, "User32.lib")
 
-#include "ChangeWatcher.h"
+#include "MagicSynchronizer.h"
 #include "FileExplorer.h"
 
 void RefreshDirectory(const std::wstring&, const std::wstring&);
@@ -19,10 +19,11 @@ int _tmain(int argc, TCHAR *argv[])
 		return -1;
 	}
 
-	//WatchDirectory(argv[1], argv[2]);
+	FileExplorer fe(argv[1]);
+	fe.getFileTree().print(L"   ");
 
-	FileExplorer fe1(argv[1]);
-	fe1.getFileTree().print(L"");
+	MagicSynchronizer sync(argv[1], argv[2]);
+	sync.startSync();
 
 	return 0;
 }

@@ -1,4 +1,7 @@
 #include "MagicSynchronizer.h"
+#include "FileExplorer.h"
+#include "utils.h"
+#include <iostream>
 
 MagicSynchronizer::MagicSynchronizer(const std::wstring & dirA, const std::wstring & dirB):
 	m_notifierA(dirA),
@@ -17,17 +20,35 @@ void MagicSynchronizer::startSync()
 
 		if (cn == &m_notifierA)
 		{
-			//RefreshDirectory(cn2.getDirPath().c_str(), cn1.getDirPath().c_str());
+			synchronize(&m_notifierB);
 		}
 		else if (cn == &m_notifierB)
 		{
-			//RefreshDirectory(cn1.getDirPath().c_str(), cn2.getDirPath().c_str());
+			synchronize(&m_notifierA);
 		}
 	}
 }
 
-void MagicSynchronizer::synchronize()
+void MagicSynchronizer::synchronize(ChangeNotifier* cn)
 {
+	ChangeNotifier* ref = cn == &m_notifierA ? &m_notifierB : &m_notifierA;
+
+	FileExplorer feRef(ref->getDirPath());
+	FileExplorer feSyn(cn->getDirPath());
+	
+	FileTreeDiff diff = feRef.getFileTree().getDiff(feSyn.getFileTree());
+
+	std::cout << "------------------------------" << std::endl;
+	std::wcout << L"Files to add to " << cn->getDirPath() << std::endl;
+	for (std::wstring& str : diff.filesToCreate)
+	{
+		std::wcout << L"    " << str << std::endl;
+		createFile(str);
+	}
+
+	std::cout << "\nDirs to add:" << std::endl;
+	for (std::wstring& str : diff.dirsToCreate)
+		std::wcout << L"    " << str << std::endl;
 }
 
 

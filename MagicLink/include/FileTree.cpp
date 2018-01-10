@@ -51,6 +51,11 @@ void FileTree::showDiff(const FileTree& tree) const
 	compare(this, &tree, nullptr);
 }
 
+std::wstring FileTree::getFullPath() const
+{
+	return m_path + L"\\" + m_name;
+}
+
 FileTreeDiff FileTree::getDiff(const FileTree & tree) const
 {
 	FileTreeDiff result;
@@ -71,7 +76,8 @@ void FileTree::compare(const FileTree* tree1, const FileTree* tree2, FileTreeDif
 			const FileTree* subNode2 = tree2->m_subNodes.at(name);
 			if (subNode->m_lastWriteTime == subNode2->m_lastWriteTime)
 			{
-				std::wcout << L"[*] Modified '" << name << L"'" << std::endl;
+				if (!result)
+					std::wcout << L"[*] Modified '" << name << L"'" << std::endl;
 			}
 
 			compare(subNode, subNode2, result);
@@ -82,15 +88,15 @@ void FileTree::compare(const FileTree* tree1, const FileTree* tree2, FileTreeDif
 			{
 				if (subNode->m_type == NodeTypeFILE)
 				{
-					result->filesToCreate.push_back(name);
+					result->filesToCreate.push_back(tree2->getFullPath() + L"\\" + name);
 				}
 				else
 				{
-					result->dirsToCreate.push_back(name);
+					result->dirsToCreate.push_back(subNode->getFullPath());
 				}
 			}
-
-			std::wcout << L"[-] Deleted node '" << name << L"'" << std::endl;
+			else
+				std::wcout << L"[-] Deleted node '" << name << L"'" << std::endl;
 		}
 	}
 
