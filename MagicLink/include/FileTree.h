@@ -5,6 +5,9 @@
 #include <windows.h>
 #include <vector>
 
+#include "json.hpp"
+using json = nlohmann::json;
+
 struct FileTreeDiff
 {
 	std::vector<std::wstring> filesToCreate, filesToDelete;
@@ -32,7 +35,10 @@ public:
 	void showDiff(const FileTree& tree) const;
 	std::wstring getFullPath() const;
 
+	std::wstring getName() const;
 	FileTreeDiff getDiff(const FileTree& tree) const;
+
+	json toJson() const;
 
 private:
 	NodeType m_type;
@@ -45,4 +51,6 @@ private:
 
 	void compare(const FileTree* tree1, const FileTree* tree2, FileTreeDiff* result) const;
 	bool hasSubNode(const std::wstring& name) const;
+
+	void jsonBuilder(const FileTree* tree, json* result) const;
 };

@@ -39,16 +39,25 @@ void MagicSynchronizer::synchronize(ChangeNotifier* cn)
 	FileTreeDiff diff = feRef.getFileTree().getDiff(feSyn.getFileTree());
 
 	std::cout << "------------------------------" << std::endl;
-	std::wcout << L"Files to add to " << cn->getDirPath() << std::endl;
+	std::wcout << L"\nFiles to add to " << cn->getDirPath() << std::endl;
 	for (std::wstring& str : diff.filesToCreate)
 	{
 		std::wcout << L"    " << str << std::endl;
-		createFile(str);
+		//createFile(str);
 	}
 
 	std::cout << "\nDirs to add:" << std::endl;
 	for (std::wstring& str : diff.dirsToCreate)
 		std::wcout << L"    " << str << std::endl;
+
+	std::wcout << L"\nFiles to delete in " << cn->getDirPath() << std::endl;
+	for (std::wstring& str : diff.filesToDelete)
+	{
+		std::wcout << L"    " << str << std::endl;
+		bool success = DeleteFile(str.c_str());
+		if (!success)
+			std::cout << "[ERROR] Cannot delete file" << std::endl;
+	}
 }
 
 
