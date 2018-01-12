@@ -1,0 +1,8 @@
+﻿  FileTree.cpp
+  Generating code
+  4 of 2529 functions ( 0.2%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    25 functions had inline decision re-evaluated but remain unchanged
+  Finished generating code
+  MagicLink.vcxproj -> C:\Users\Jean Tampon\Documents\code\cpp\MagicLink\x64\Release\MagicLink.exe
+  MagicLink.vcxproj -> C:\Users\Jean Tampon\Documents\code\cpp\MagicLink\x64\Release\MagicLink.pdb (Full PDB)

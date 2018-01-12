@@ -4,9 +4,32 @@
 
 FileTree::FileTree(const std::wstring& name, NodeType type) :
 	m_type(type),
-	m_name(name)
+	m_name(name),
+	m_relPath(L"")
 {
 
+}
+
+FileTree::FileTree(const json& jTree)
+{
+	std::string type = jTree.at("type");
+	std::string name = jTree.at("name");
+	
+	m_type = type.compare("DIR") ? NodeTypeFILE : NodeTypeDIR;
+	m_name = std::wstring(name.begin(), name.end());
+
+	if (isDir())
+	{
+		for (const json& currentJson : jTree.at("content"))
+		{
+			std::wstring subName = toWstr(currentJson.at("name"));
+			FileTree* newFileTree = new FileTree(currentJson);
+
+			m_subNodes[subName] = newFileTree;
+		}
+
+		updatePath();
+	}
 }
 
 FileTree* FileTree::addSubNode(const std::wstring & name, NodeType type)
@@ -18,6 +41,11 @@ FileTree* FileTree::addSubNode(const std::wstring & name, NodeType type)
 		newFileTree->m_path = m_path + L"\\" + m_name;
 	else
 		newFileTree->m_path = m_name;
+
+	if (m_relPath.length() > 0)
+		newFileTree->m_relPath = m_relPath + L"\\" + m_name;
+	else
+		newFileTree->m_relPath = m_name;
 
 	return newFileTree;
 }
@@ -39,7 +67,7 @@ void FileTree::setWriteTime(FILETIME time)
 
 void FileTree::print(const std::wstring& indent) const
 {
-	std::wcout << indent << m_name << L"(" << m_path << L")" << std::endl;
+	std::wcout << indent << m_name << L"(" << m_relPath << L")" << std::endl;
 	for (const auto elem : m_subNodes)
 	{
 		elem.second->print(indent + std::wstring(L"   "));
@@ -48,12 +76,17 @@ void FileTree::print(const std::wstring& indent) const
 
 void FileTree::showDiff(const FileTree& tree) const
 {
-	compare(this, &tree, nullptr);
+	compare(&tree, this, nullptr);
 }
 
 std::wstring FileTree::getFullPath() const
 {
 	return m_path + L"\\" + m_name;
+}
+
+bool FileTree::isDir() const
+{
+	return m_type == NodeTypeDIR;
 }
 
 std::wstring FileTree::getName() const
@@ -64,7 +97,7 @@ std::wstring FileTree::getName() const
 FileTreeDiff FileTree::getDiff(const FileTree & tree) const
 {
 	FileTreeDiff result;
-	compare(this, &tree, &result);
+	compare(&tree, this, &result);
 
 	return result;
 }
@@ -104,7 +137,7 @@ void FileTree::compare(const FileTree* tree1, const FileTree* tree2, FileTreeDif
 			{
 				if (subNode->m_type == NodeTypeFILE)
 				{
-					result->filesToCreate.push_back(tree2->getFullPath() + L"\\" + name);
+					result->filesToCreate.push_back(tree2->m_relPath + L"\\" + name);
 				}
 				else
 				{
@@ -129,7 +162,7 @@ void FileTree::compare(const FileTree* tree1, const FileTree* tree2, FileTreeDif
 			{
 				if (subNode->m_type == NodeTypeFILE)
 				{
-					result->filesToDelete.push_back(tree2->getFullPath() + L"\\" + name);
+					result->filesToDelete.push_back(tree2->m_relPath + L"\\" + name);
 				}
 				else
 				{
@@ -147,20 +180,36 @@ bool FileTree::hasSubNode(const std::wstring & name) const
 	return (m_subNodes.find(name) != m_subNodes.end());
 }
 
+void FileTree::updatePath()
+{
+	for (auto it : m_subNodes)
+	{
+		if (m_path.length() > 0)
+			it.second->m_path = m_path + L"\\" + m_name;
+		else
+			it.second->m_path = m_name;
+
+		if (m_relPath.length() > 0)
+			it.second->m_relPath = m_relPath + L"\\" + m_name;
+		else
+			it.second->m_relPath = m_name;
+		
+		it.second->updatePath();
+	}
+}
+
 void FileTree::jsonBuilder(const FileTree* tree, json* result) const
 {
-	for (auto it : tree->m_subNodes)
+	(*result)["type"] = (tree->m_type == NodeType::NodeTypeFILE) ? "FILE" : "DIR";
+	(*result)["name"] = toStr(tree->m_name);
+	if (tree->m_type == NodeTypeDIR)
 	{
-		std::string name(it.first.begin(), it.first.end());
-		
-		FileTree* subNode = it.second;
-		
-		if (subNode->m_type == NodeTypeFILE)
-			(*result)[name]["type"] = "FILE";
-		else
+		(*result)["content"] = {};
+		for (auto it : tree->m_subNodes)
 		{
-			(*result)[name]["type"] = "DIR";
-			jsonBuilder(subNode, &((*result)[name]["content"]));
+			std::string name(it.first.begin(), it.first.end());
+			FileTree* subNode = it.second;
+			jsonBuilder(subNode, &((*result)["content"][name]));
 		}
 	}
 }

@@ -24,6 +24,7 @@ class FileTree
 {
 public:
 	FileTree(const std::wstring& name, NodeType type);
+	FileTree(const json& jTree);
 
 	FileTree* addSubNode(const std::wstring& name, NodeType type);
 
@@ -34,6 +35,7 @@ public:
 	void print(const std::wstring& indent) const;
 	void showDiff(const FileTree& tree) const;
 	std::wstring getFullPath() const;
+	bool isDir() const;
 
 	std::wstring getName() const;
 	FileTreeDiff getDiff(const FileTree& tree) const;
@@ -43,7 +45,7 @@ public:
 private:
 	NodeType m_type;
 
-	std::wstring m_path;
+	std::wstring m_path, m_relPath;
 	std::wstring m_name;
 	
 	FILETIME m_lastWriteTime;
@@ -51,6 +53,8 @@ private:
 
 	void compare(const FileTree* tree1, const FileTree* tree2, FileTreeDiff* result) const;
 	bool hasSubNode(const std::wstring& name) const;
+
+	void updatePath();
 
 	void jsonBuilder(const FileTree* tree, json* result) const;
 };

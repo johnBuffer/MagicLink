@@ -24,28 +24,21 @@ int _tmain(int argc, TCHAR *argv[])
 		args.push_back(argv[i]);
 	}
 
-	FileExplorer fe(args[1]);
+	/*FileExplorer fe(args[1]);
 	json j = fe.getFileTree().toJson();
 
-	std::cout << std::setw(4) << j << std::endl;
+	FileTree ft(j);
 
-	return 0;
+	fe.getFileTree().print(L"    ");
+	ft.print(L"    ");
+
+	return 0;*/
 
 	MagicServer server;
 
-	if (args[1].compare(L"send") == 0)
+	if(args[1].compare(L"serv") == 0)
 	{
-		std::cout << "Send data" << std::endl;
-		if (args.size() > 4)
-		{
-			std::string ip(args[2].begin(), args[2].end());
-			int port = std::stoi(args[3]);
-
-			server.sendFile(ip, port, argv[4]);
-		}
-	}
-	else if(args[1].compare(L"serv") == 0)
-	{
+		server.loadConfigFile(toStr(args[2]));
 		server.start();
 	}
 

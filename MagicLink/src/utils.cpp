@@ -31,5 +31,40 @@ std::vector<char> importFile(const std::wstring& filename)
 
 	std::vector<char> buffer((std::istreambuf_iterator<char>(input)), (std::istreambuf_iterator<char>()));
 
+	std::cout << "Loaded " << buffer.size() << " bytes" << std::endl;
+
 	return buffer;
+}
+
+void sendData(const std::string& ip, int port, const char * data, size_t length)
+{
+	sf::TcpSocket socket;
+	sf::Socket::Status status = socket.connect(ip, port);
+
+	//std::cout << "Trying to connect to: " << ip << ":" << port << "..." << std::endl;
+	if (status != sf::Socket::Done)
+	{
+		std::cout << "[ERROR] Cannot connect to " << ip << ":" << port << std::endl;
+	}
+	else
+	{
+		//std::cout << "[OK] Connected" << std::endl;
+	}
+
+	if (socket.send(data, length) != sf::Socket::Done)
+	{
+		std::cout << "[ERROR] Cannot send data" << std::endl;
+	}
+
+	socket.disconnect();
+}
+
+std::string toStr(const std::wstring & wstr)
+{
+	return std::string(wstr.begin(), wstr.end());
+}
+
+std::wstring toWstr(const std::string& str)
+{
+	return std::wstring(str.begin(), str.end());
 }

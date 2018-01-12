@@ -88,7 +88,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Users\Jean Tampon\Documents\code\cpp\MagicLink\MagicLink\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\lib\SFML-VS15\include;C:\Users\Jean Tampon\Documents\code\cpp\MagicLink\MagicLink\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -150,6 +150,7 @@
     <ClCompile Include="include\FileExplorer.cpp" />
     <ClCompile Include="include\FileTree.cpp" />
     <ClCompile Include="src\ChangeNotifier.cpp" />
+    <ClCompile Include="src\DistantDirectory.cpp" />
     <ClCompile Include="src\MagicServer.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\MagicSynchronizer.cpp" />
@@ -161,8 +162,10 @@
     <ClInclude Include="include\FileExplorer.h" />
     <ClInclude Include="include\FileTree.h" />
     <ClInclude Include="include\json.hpp" />
+    <ClInclude Include="include\DistantDirectory.h" />
     <ClInclude Include="include\MagicServer.h" />
     <ClInclude Include="include\MagicSynchronizer.h" />
+    <ClInclude Include="include\sha2.h" />
     <ClInclude Include="include\utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
