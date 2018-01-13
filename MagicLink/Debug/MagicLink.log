@@ -1,5 +1,9 @@
-﻿  main.cpp
+﻿  utils.cpp
+  main.cpp
   MagicSynchronizer.cpp
-  Generating Code...
-  MagicLink.vcxproj -> C:\Users\Jean Tampon\Documents\code\cpp\MagicLink\Debug\MagicLink.exe
-  MagicLink.vcxproj -> C:\Users\Jean Tampon\Documents\code\cpp\MagicLink\Debug\MagicLink.pdb (Full PDB)
+  ChangeNotifier.cpp
+  FileTree.cpp
+  FileExplorer.cpp
+  ChangeWatcher.cpp
+  Génération de code en cours...
+LINK : fatal error LNK1104: impossible d'ouvrir le fichier 'gdi32.lib'
