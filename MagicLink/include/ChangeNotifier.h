@@ -21,4 +21,6 @@ private:
 	DWORD m_filter;
 	HANDLE m_handle;
 
+
+
 };

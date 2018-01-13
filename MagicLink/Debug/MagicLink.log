@@ -1,9 +1,0 @@
-﻿  utils.cpp
-  main.cpp
-  MagicSynchronizer.cpp
-  ChangeNotifier.cpp
-  FileTree.cpp
-  FileExplorer.cpp
-  ChangeWatcher.cpp
-  Génération de code en cours...
-LINK : fatal error LNK1104: impossible d'ouvrir le fichier 'gdi32.lib'
