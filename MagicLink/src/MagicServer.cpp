@@ -15,9 +15,10 @@ void MagicServer::start()
 {
 	m_running = true;
 
+	std::vector<std::thread> threads;
 	for (auto it : m_synchronizers)
 	{
-		it.second->startSync(this);
+		threads.emplace_back(&MagicSynchronizer::startSync, it.second, this);
 	}
 
 	std::thread t(&MagicServer::listenIncoming, this);
@@ -59,6 +60,8 @@ void MagicServer::sendFile(DistantDirectory& dd, const std::wstring& filePath)
 	// Add file
 	for (char c : fileData)
 		data.push_back(c);
+
+	std::cout << "Sending file of size " << fileData.size() << std::endl;
 
 	sendData(dd.getIp(), dd.getPort(), data.data(), data.size());
 }
@@ -102,6 +105,21 @@ void MagicServer::registerSynchronizer(MagicSynchronizer* sync)
 	std::cout << "[ADD] New synchronizer (" << hash << ")" << std::endl;
 }
 
+void MagicServer::listExposedDirectories() const
+{
+	std::cout << "\nExposed directories" << std::endl;
+	std::cout << "--------------------------------------" << std::endl;
+	for (const auto it : m_synchronizers)
+	{
+		std::cout << it.second->getLocalDir() << " -> " << it.second->getID() << std::endl;
+	}
+}
+
+void MagicServer::setPort(int port)
+{
+	m_port = port;
+}
+
 void MagicServer::listenIncoming()
 {
 	if (m_listener.listen(m_port) != sf::Socket::Done)
@@ -111,15 +129,15 @@ void MagicServer::listenIncoming()
 
 	while (m_running)
 	{
-		//std::cout << "[OK] Waiting client on port " << m_port << std::endl;
+		std::cout << "[OK] Waiting client on port " << m_port << std::endl;
 
 		sf::TcpSocket client;
 		if (m_listener.accept(client) != sf::Socket::Done) { /* ERROR */ }
 
-		//std::cout << "[OK] New client " << client.getRemoteAddress() << ":" << client.getRemotePort() << std::endl;
+		std::cout << "[OK] New client " << client.getRemoteAddress() << ":" << client.getRemotePort() << std::endl;
 		//std::cout << "Waiting for data..." << std::endl;
 
-		const size_t MAX_DATA = 1000000;
+		const int MAX_DATA = 1000000;
 		char data[MAX_DATA];
 		std::size_t received;
 
@@ -175,12 +193,12 @@ void MagicServer::parseData(char* data, size_t length)
 	case 5:
 	{
 		// File received
-		std::string id(&data[1], &data[65]);
+		std::string id(&data[1], 64);
 		int size = data[65];
 		std::string filename(&data[66], size);
 
-		std::cout << "'" << filename << "' received (" << length - size - 66 << " bytes) total " << id << length << std::endl;
-		m_synchronizers[id]->createReceivedFile(filename, &data[0], 66);
+		std::cout << "'" << filename << "' received (" << length - size - 66 << " bytes) total " << length << std::endl;
+		m_synchronizers[id]->createReceivedFile(filename, &data[66+size], length - size - 66);
 		break;
 	}
 	default:

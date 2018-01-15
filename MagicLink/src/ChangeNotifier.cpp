@@ -1,17 +1,18 @@
 #include "ChangeNotifier.h"
 #include <iostream>
+#include "utils.h"
 
 ChangeNotifier::ChangeNotifier(const std::wstring& dirPath):
 	m_dirPath(dirPath)
 {
-	std::wcout << "Trying to add notifier for: '" << m_dirPath << "'" << std::endl;
+	//std::wcout << "Trying to add notifier for: '" << m_dirPath << "'" << std::endl;
 
 	m_filter = FILE_NOTIFY_CHANGE_FILE_NAME | FILE_NOTIFY_CHANGE_LAST_WRITE | FILE_NOTIFY_CHANGE_DIR_NAME;
 	m_handle = FindFirstChangeNotification(m_dirPath.c_str(), TRUE, m_filter);
 
 	if (m_handle == INVALID_HANDLE_VALUE)
 	{
-		std::cout << "[ERROR] FindFirstChangeNotification function failed" << std::endl;
+		std::cout << "[ERROR] FindFirstChangeNotification function failed for " << toStr(dirPath) << std::endl;
 		ExitProcess(GetLastError());
 	}
 }

@@ -34,6 +34,8 @@ private:
 
 	std::unordered_map<std::string, DistantDirectory> m_linked;
 
+	int m_remaining_actions;
+
 	MagicServer* m_server;
 
 	void synchronize();

@@ -51,10 +51,13 @@ void sendData(const std::string& ip, int port, const char * data, size_t length)
 		//std::cout << "[OK] Connected" << std::endl;
 	}
 
-	if (socket.send(data, length) != sf::Socket::Done)
+	size_t sent = 0;
+	if (socket.send(data, length, sent) != sf::Socket::Done)
 	{
 		std::cout << "[ERROR] Cannot send data" << std::endl;
 	}
+
+	std::cout << "Sent: " << sent << " bytes (" << int(100 * sent / double(length)) << "%)" << std::endl;
 
 	socket.disconnect();
 }
