@@ -42,7 +42,6 @@ int _tmain(int argc, TCHAR *argv[])
 		server.start();
 	}
 
-
 	/*FileExplorer fe(argv[1]);
 	fe.getFileTree().print(L"   ");
 

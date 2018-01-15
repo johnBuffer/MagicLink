@@ -29,6 +29,8 @@ public:
 private:
 	std::string m_id;
 
+	bool m_busy;
+
 	ChangeNotifier m_notifier;
 	ChangeWatcher m_watcher;
 

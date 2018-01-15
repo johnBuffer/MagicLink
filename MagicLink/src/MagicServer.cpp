@@ -111,13 +111,8 @@ void MagicServer::listenIncoming()
 
 	while (m_running)
 	{
-		//std::cout << "[OK] Waiting client on port " << m_port << std::endl;
-
 		sf::TcpSocket client;
 		if (m_listener.accept(client) != sf::Socket::Done) { /* ERROR */ }
-
-		//std::cout << "[OK] New client " << client.getRemoteAddress() << ":" << client.getRemotePort() << std::endl;
-		//std::cout << "Waiting for data..." << std::endl;
 
 		const size_t MAX_DATA = 1000000;
 		char data[MAX_DATA];
@@ -127,9 +122,7 @@ void MagicServer::listenIncoming()
 
 		parseData(data, received);
 
-		client.disconnect();
-
-		//std::cout << "[OK] Transfer done.\n" << std::endl;
+		//client.disconnect();
 	}
 }
 

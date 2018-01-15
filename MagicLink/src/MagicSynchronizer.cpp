@@ -11,6 +11,7 @@ MagicSynchronizer::MagicSynchronizer(const std::wstring& localDir):
 {
 	m_watcher.addNotifier(m_notifier);
 	picosha2::hash256_hex_string(localDir, m_id);
+	m_busy = false;
 }
 
 void MagicSynchronizer::addLinkedDirectory(const std::string& id, const std::string& ip, int port)
@@ -33,18 +34,15 @@ void MagicSynchronizer::notifyChange(const std::string& id, const std::string& t
 	FileTree thisFT = FileExplorer(m_notifier.getDirPath()).getFileTree();
 	FileTree refFT(jTree);
 
-	//thisFT.showDiff(refFT);
+	thisFT.showDiff(refFT);
 	FileTreeDiff diff = thisFT.getDiff(refFT);
 	std::wstring dirPath = m_notifier.getDirPath();
 	
 	for (std::wstring& str : diff.filesToCreate)
 	{
-		std::wcout << L"    " << str << std::endl;
-
 		m_server->sendFileRequest(m_linked[id], m_id, toStr(str));
 	}
 
-	std::cout << "\nDirs to add:" << std::endl;
 	for (std::wstring& str : diff.dirsToCreate)
 		std::wcout << L"    " << str << std::endl;
 
@@ -89,12 +87,16 @@ void MagicSynchronizer::fileRequest(const std::string& filename)
 
 void MagicSynchronizer::createReceivedFile(const std::string& filename, char* data, size_t length)
 {
+	m_busy = true;
+
 	std::wstring dirPath = m_notifier.getDirPath();
 	std::wstring fullPath = dirPath + L"\\" + toWstr(filename);
 
 	std::wcout << L"File to be created: " << fullPath << std::endl;
 
 	createFile(fullPath, data, length);
+
+	m_busy = false;
 }
 
 void MagicSynchronizer::synchronize()
@@ -110,11 +112,14 @@ void MagicSynchronizer::synchronize()
 
 		//std::wcout << L"Change in " << m_notifier.getDirPath() << std::endl;
 		
-		for (auto it : m_linked)
+		if (!m_busy)
 		{
-			std::string tree = FileExplorer(m_notifier.getDirPath()).getFileTree().toJson().dump();
-			DistantDirectory& dd = it.second;
-			m_server->sendFileTree(dd, m_id, tree);
+			for (auto it : m_linked)
+			{
+				std::string tree = FileExplorer(m_notifier.getDirPath()).getFileTree().toJson().dump();
+				DistantDirectory& dd = it.second;
+				m_server->sendFileTree(dd, m_id, tree);
+			}
 		}
 	}
 }
