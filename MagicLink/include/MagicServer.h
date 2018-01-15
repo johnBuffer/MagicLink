@@ -26,6 +26,9 @@ public:
 	void loadConfigFile(const std::string& filename);
 	void registerSynchronizer(MagicSynchronizer* sync);
 
+	void listExposedDirectories() const;
+
+	void setPort(int port);
 
 private:
 	int m_port;
