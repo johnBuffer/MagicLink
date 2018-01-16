@@ -4,6 +4,7 @@
 #include <sstream>
 #include <iostream>
 #include "utils.h"
+#include "TcpFile.h"
 
 MagicServer::MagicServer():
 	m_port(8080),
@@ -44,26 +45,7 @@ void MagicServer::sendFile(DistantDirectory& dd, const std::wstring& filePath)
 	std::wstring name = filePath.substr(filePath.find_last_of('\\') + 1);
 	std::string filename(name.begin(), name.end());
 
-	data.push_back(char(5));
-	
-	// Add dest ID
-	for (char c : dd.getID())
-		data.push_back(c);
-
-	data.push_back(char(filename.size()));
-	
-	// Add filename
-	for (char c : filename)
-		data.push_back(c);
-
-	std::vector<char> fileData = importFile(filePath);
-	// Add file
-	for (char c : fileData)
-		data.push_back(c);
-
-	std::cout << "Sending file of size " << fileData.size() << std::endl;
-
-	sendData(dd.getIp(), dd.getPort(), data.data(), data.size());
+	TcpFile::send_file(toStr(filePath), 0, dd.getIp(), dd.getPort());
 }
 
 void MagicServer::sendFileTree(DistantDirectory& dd, const std::string& id, const std::string& tree)
@@ -72,10 +54,12 @@ void MagicServer::sendFileTree(DistantDirectory& dd, const std::string& id, cons
 	sendData(dd.getIp(), dd.getPort(), data.c_str(), data.size());
 }
 
-void MagicServer::sendFileRequest(DistantDirectory& dd, const std::string& id, const std::string& filename)
+std::vector<char> sendFileRequest(MagicSynchronizer* sync, DistantDirectory& dd, const std::string& id, const std::string& filename)
 {
 	std::string data = char(3) + dd.getID() + id + filename;
 	sendData(dd.getIp(), dd.getPort(), data.c_str(), data.size());
+	TcpFile
+
 }
 
 void MagicServer::loadConfigFile(const std::string& filename)

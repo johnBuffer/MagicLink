@@ -21,7 +21,7 @@ public:
 	void sendRegistrationRequest();
 	void sendDirectoryList();
 
-	void sendFileRequest(DistantDirectory& dd, const std::string& id, const std::string& filename);
+	std::vector<char> sendFileRequest(MagicSynchronizer* sync, DistantDirectory& dd, const std::string& id, const std::string& filename);
 
 	void loadConfigFile(const std::string& filename);
 	void registerSynchronizer(MagicSynchronizer* sync);

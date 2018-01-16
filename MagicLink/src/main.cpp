@@ -62,7 +62,8 @@ int _tmain(int argc, TCHAR *argv[])
 		{
 			const int port = 8081;
 			std::cout << "Waiting data on port " << port << std::endl;
-			TcpFile::wait_file(port);
+			FileViaTcp file = TcpFile::wait_file(port);
+			createFile(toWstr(file.filename+"_viaTCP"), file.data.data(), file.data.size());
 		}
 	}
 

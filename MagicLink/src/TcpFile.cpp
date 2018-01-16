@@ -64,38 +64,62 @@ void TcpFile::send_file(const std::string& filename, int start, const std::strin
 	std::cout << "Sent." << std::endl;
 
 	int response_code = tfrc_file_from_bytes;
-	while (response_code != tfrc_done)
+	/*while (response_code != tfrc_done)
 	{
-		std::vector<char> response = wait_data();
+		Data response = wait_data(socket);
 
-		response_code = response[0];
+		response_code = response.raw_data[0];
 
 		if (response_code == TCP_FILE_REQUEST_CODE::tfrc_send_from_bytes)
 		{
-			const int start_byte = (response[1] << 24) + (response[2] << 16) + (response[3] << 8) + response[4];
+			int start_byte;// = (response.raw_data[1] << 24) + (response.raw_data[2] << 16) + (response.raw_data[3] << 8) + response.raw_data[4];
+			memcpy(&start_byte, (int*)&response.raw_data[1], sizeof(int));
+
+			std::cout << "Requested file from bytes " << start_byte << std::endl;
+
 			data.clear();
 			data.insert(data.end(), header.begin(), header.end());
 			data.insert(data.end(), file.begin()+start_byte, file.end());
-		}
 
-		break;
-	}
+			if (socket.send(data.data(), data.size()) != sf::Socket::Done)
+			{
+				std::cout << "[ERROR] Cannot send data" << std::endl;
+			}
+		}
+	}*/
 }
 
-std::vector<char> TcpFile::wait_file(int port)
+FileViaTcp TcpFile::wait_file(int port)
 {
+	FileViaTcp result;
 	std::vector<char> data;
 	
-	std::vector<char> received_data = wait_data(port);
+	sf::TcpSocket socket;
+	wait_connection(socket, port);
 
-	TcpFileMessage message(received_data);
+	Data response = wait_data(socket);
+	TcpFileMessage message(response.raw_data);
 
 	std::cout << "Received '" << message.filename << "' of size " << message.file_size << " bytes" << std::endl;
+	result.filename = message.filename;
 
-	return data;
+	int file_data_size = response.raw_data.size() - message.data_start_index;
+	data.insert(data.end(), response.raw_data.begin() + message.data_start_index, response.raw_data.end());
+
+	while (file_data_size < message.file_size)
+	{
+		Data res = wait_data(socket);
+		file_data_size += res.raw_data.size();
+		data.insert(data.end(), res.raw_data.begin(), res.raw_data.end());
+		std::cout << "File data received size " << file_data_size << " bytes (" << int(100 * file_data_size / double(message.file_size)) << "%)" << std::endl;
+	}
+
+	result.data = data;
+
+	return result;
 }
 
-std::vector<char> TcpFile::wait_data(int port)
+void TcpFile::wait_connection(sf::TcpSocket& socket, int port)
 {
 	sf::TcpListener listener;
 
@@ -104,22 +128,29 @@ std::vector<char> TcpFile::wait_data(int port)
 		std::cout << "[ERROR] Cannot bind port " << port << std::endl;
 	}
 
-	sf::TcpSocket client;
-	if (listener.accept(client) != sf::Socket::Done) { /* ERROR */ }
+	if (listener.accept(socket) != sf::Socket::Done) 
+	{
+	}
+}
 
-	std::cout << "[OK] New client " << client.getRemoteAddress() << ":" << client.getRemotePort() << std::endl;
+Data TcpFile::wait_data(sf::TcpSocket& socket)
+{
+	Data result;
+
+	std::cout << "Waiting on port " << socket.getLocalPort() << std::endl;
 
 	const int MAX_DATA = 1000000;
-	std::vector<char> data(MAX_DATA);
+	result.raw_data.resize(MAX_DATA);
 	size_t received;
 
-	if (client.receive(data.data(), MAX_DATA, received) != sf::Socket::Done) { /* ERROR */ }
+	if (socket.receive(result.raw_data.data(), MAX_DATA, received) != sf::Socket::Done) { std::cout << "ERROR" << std::endl; }
+	result.raw_data.resize(received);
+	result.address = socket.getRemoteAddress();
+	result.port = socket.getRemotePort();
 
-	client.disconnect();
+	std::cout << "Received " << received << " bytes" << std::endl;
 
-	listener.close();
-
-	return data;
+	return result;
 }
 
 TcpFileMessage::TcpFileMessage(std::vector<char>& message)
